@@ -196,7 +196,24 @@
                     log('> Name:             ' + device.name);
                     log('> Id:               ' + device.id);
                     log('> Connected:        ' + device.gatt.connected);
-                    log('> Metadata: ' + JSON.stringify(device));
+
+                    // Attempts to connect to remote GATT Server.
+                    return device.gatt.connect();
+                })
+                .then(server => {
+                    // Getting Battery Service…
+                    return server.getPrimaryService('battery_service');
+                })
+                .then(service => {
+                    // Getting Battery Level Characteristic…
+                    return service.getCharacteristic('battery_level');
+                })
+                .then(characteristic => {
+                    // Reading Battery Level…
+                    return characteristic.readValue();
+                })
+                .then(value => {
+                    log(`Battery percentage is ${value.getUint8(0)}`);
                 })
                 .catch(error => {
                     log('Argh! ' + error);
