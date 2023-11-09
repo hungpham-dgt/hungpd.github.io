@@ -77,8 +77,6 @@
     </script>
 
     <form>
-        <label for="allDevices">All Devices</label>
-        <input id="allDevices" type="checkbox">
         <input id="service" type="text" size=17 list="services" placeholder="Bluetooth Service">
         <input id="name" type="text" size=17 placeholder="Device Name">
         <input id="namePrefix" type="text" size=17 placeholder="Device Name Prefix" value="Daisenko">
@@ -189,11 +187,7 @@
             }
 
             let options = {};
-            if (document.querySelector('#allDevices').checked) {
-                options.acceptAllDevices = true;
-            } else {
-                options.filters = filters;
-            }
+            options.filters = filters;
 
             log('Requesting Bluetooth Device...');
             log('with ' + JSON.stringify(options));
@@ -202,7 +196,7 @@
                     log('> Name:             ' + device.name);
                     log('> Id:               ' + device.id);
                     log('> Connected:        ' + device.gatt.connected);
-                    log(JSON.stringify(device));
+                    log('> Metadata: ' + JSON.stringify(device));
                 })
                 .catch(error => {
                     log('Argh! ' + error);
