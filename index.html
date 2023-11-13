@@ -230,19 +230,16 @@
         */
 
         function onButtonClick() {
-            const controlServiceUUID = '0000fff0-0000-1000-8000-00805f9b34fb'; // Full UUID
-            const commandCharacteristicUUID = '0000ae11-0000-1000-8000-00805f9b34fb'; // [READ]
+            const controlServiceUUID = '0000fff0-0000-1000-8000-00805f9b34fb'; // Primary service
+            const commandCharacteristicUUID = '0000ae11-0000-1000-8000-00805f9b34fb'; // Characteristic / Notify
 
 
 
             let options = {
-                // acceptAllDevices: true,
-                // filters: [
-                //     { namePrefix: 'Daisenko' }
-                // ],
                 filters: [
-                    { services: [controlServiceUUID] }
-                ]
+                    { namePrefix: 'Daisenko' },
+                    //{ services: [controlServiceUUID] }
+                ],
             };
 
             log('Requesting Bluetooth Device...');
