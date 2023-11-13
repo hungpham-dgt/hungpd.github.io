@@ -17,107 +17,18 @@
         });
     </script>
 
-
-
-
-    <link rel="icon" href="icon.png">
-
-    <link rel="stylesheet" href="../styles/main.css">
-
-
 </head>
 
 <body>
-
     <script>
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('service-worker.js');
         }
     </script>
 
-    <script>
-        window.addEventListener('DOMContentLoaded', function () {
-            const searchParams = new URL(location).searchParams;
-            const inputs = Array.from(document.querySelectorAll('input[id]'));
-
-            inputs.forEach(input => {
-                if (searchParams.has(input.id)) {
-                    if (input.type == 'checkbox') {
-                        input.checked = searchParams.get(input.id);
-                    } else {
-                        input.value = searchParams.get(input.id);
-                        input.blur();
-                    }
-                }
-                if (input.type == 'checkbox') {
-                    input.addEventListener('change', function (event) {
-                        const newSearchParams = new URL(location).searchParams;
-                        if (event.target.checked) {
-                            newSearchParams.set(input.id, event.target.checked);
-                        } else {
-                            newSearchParams.delete(input.id);
-                        }
-                        history.replaceState({}, '', Array.from(newSearchParams).length ?
-                            location.pathname + '?' + newSearchParams : location.pathname);
-                    });
-                } else {
-                    input.addEventListener('input', function (event) {
-                        const newSearchParams = new URL(location).searchParams;
-                        if (event.target.value) {
-                            newSearchParams.set(input.id, event.target.value);
-                        } else {
-                            newSearchParams.delete(input.id);
-                        }
-                        history.replaceState({}, '', Array.from(newSearchParams).length ?
-                            location.pathname + '?' + newSearchParams : location.pathname);
-                    });
-                }
-            });
-        });
-    </script>
-
     <form>
-        <input id="service" type="text" size=17 list="services" placeholder="Bluetooth Service">
-        <input id="name" type="text" size=17 placeholder="Device Name">
-        <input id="namePrefix" type="text" size=17 placeholder="Device Name Prefix" value="Daisenko">
-        <button>Get Bluetooth Device Info</button>
+        <button>Daisenko Connect!</button>
     </form>
-
-    <datalist id="services">
-        <option value="alert_notification">alert_notification</option>
-        <option value="automation_io">automation_io</option>
-        <option value="battery_service">battery_service</option>
-        <option value="blood_pressure">blood_pressure</option>
-        <option value="body_composition">body_composition</option>
-        <option value="bond_management">bond_management</option>
-        <option value="continuous_glucose_monitoring">continuous_glucose_monitoring</option>
-        <option value="current_time">current_time</option>
-        <option value="cycling_power">cycling_power</option>
-        <option value="cycling_speed_and_cadence">cycling_speed_and_cadence</option>
-        <option value="device_information">device_information</option>
-        <option value="environmental_sensing">environmental_sensing</option>
-        <option value="generic_access">generic_access</option>
-        <option value="generic_attribute">generic_attribute</option>
-        <option value="glucose">glucose</option>
-        <option value="health_thermometer">health_thermometer</option>
-        <option value="heart_rate">heart_rate</option>
-        <option value="human_interface_device">human_interface_device (blocklisted)</option>
-        <option value="immediate_alert">immediate_alert</option>
-        <option value="indoor_positioning">indoor_positioning</option>
-        <option value="internet_protocol_support">internet_protocol_support</option>
-        <option value="link_loss">link_loss</option>
-        <option value="location_and_navigation">location_and_navigation</option>
-        <option value="next_dst_change">next_dst_change</option>
-        <option value="phone_alert_status">phone_alert_status</option>
-        <option value="pulse_oximeter">pulse_oximeter</option>
-        <option value="reference_time_update">reference_time_update</option>
-        <option value="running_speed_and_cadence">running_speed_and_cadence</option>
-        <option value="scan_parameters">scan_parameters</option>
-        <option value="tx_power">tx_power</option>
-        <option value="user_data">user_data</option>
-        <option value="weight_scale">weight_scale</option>
-    </datalist>
-
 
     <script>
         var ChromeSamples = {
@@ -225,15 +136,18 @@
 
 
         /*
-        Service: 0000fff0-0000-1000-8000-00805f9b34fb
-        Characterisic: 0000ae11-0000-1000-8000-00805f9b34fb
+        Service:
+            0000fff0-0000-1000-8000-00805f9b34fb
+            00001800-0000-1000-8000-00805f9b34fb (*)
+
+        Characterisic:
+            0000ae11-0000-1000-8000-00805f9b34fb
+            00002a00-0000-1000-8000-00805f9b34fb
         */
 
         function onButtonClick() {
-            const controlServiceUUID = '0000fff0-0000-1000-8000-00805f9b34fb'; // Primary service
-            const commandCharacteristicUUID = '0000ae11-0000-1000-8000-00805f9b34fb'; // Characteristic / Notify
-
-
+            const controlServiceUUID = '00001800-0000-1000-8000-00805f9b34fb'; // Primary service
+            const commandCharacteristicUUID = '00002a00-0000-1000-8000-00805f9b34fb'; // Characteristic / Notify
 
             let options = {
                 filters: [
@@ -297,11 +211,7 @@
             }
             log('> ' + a.join(' '));
         }
-    </script>
 
-
-
-    <script>
         document.querySelector('form').addEventListener('submit', function (event) {
             event.stopPropagation();
             event.preventDefault();
@@ -311,9 +221,7 @@
                 onButtonClick();
             }
         });
-    </script>
 
-    <script>
         log = ChromeSamples.log;
 
         function isWebBluetoothEnabled() {
@@ -337,8 +245,6 @@
                 '\n    (ASCII) ' + asciiString);
         };
     </script>
-
-
 
 </body>
 
