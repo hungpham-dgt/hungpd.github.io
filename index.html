@@ -215,7 +215,8 @@
                     });
 
                     // Attempts to connect to remote GATT Server.
-                    return device.gatt.connect();
+                    device.gatt.connect();
+                    return device.watchAdvertisements();
                 })
                 .catch(error => {
                     log('Argh! ' + error);
