@@ -165,7 +165,8 @@
     </script>
 
 
-    <script>function onButtonClick() {
+    <script>
+        function onButtonClick() {
             let filters = [];
 
             let filterService = document.querySelector('#service').value;
@@ -197,23 +198,24 @@
                     log('> Id:               ' + device.id);
                     log('> Connected:        ' + device.gatt.connected);
 
+                    // Watch Advertisements
+                    device.addEventListener('advertisementreceived', (event) => {
+                        log('Advertisement received.');
+                        log('  Device Name: ' + event.device.name);
+                        log('  Device ID: ' + event.device.id);
+                        log('  RSSI: ' + event.rssi);
+                        log('  TX Power: ' + event.txPower);
+                        log('  UUIDs: ' + event.uuids);
+                        event.manufacturerData.forEach((valueDataView, key) => {
+                            logDataView('Manufacturer', key, valueDataView);
+                        });
+                        event.serviceData.forEach((valueDataView, key) => {
+                            logDataView('Service', key, valueDataView);
+                        });
+                    });
+
                     // Attempts to connect to remote GATT Server.
                     return device.gatt.connect();
-                })
-                .then(server => {
-                    // Getting Battery Service…
-                    return server.getPrimaryService('battery_service');
-                })
-                .then(service => {
-                    // Getting Battery Level Characteristic…
-                    return service.getCharacteristic('battery_level');
-                })
-                .then(characteristic => {
-                    // Reading Battery Level…
-                    return characteristic.readValue();
-                })
-                .then(value => {
-                    log(`Battery percentage is ${value.getUint8(0)}`);
                 })
                 .catch(error => {
                     log('Argh! ' + error);
@@ -247,6 +249,17 @@
                 return false;
             }
         }
+
+        const logDataView = (labelOfDataSource, key, valueDataView) => {
+            const hexString = [...new Uint8Array(valueDataView.buffer)].map(b => {
+                return b.toString(16).padStart(2, '0');
+            }).join(' ');
+            const textDecoder = new TextDecoder('ascii');
+            const asciiString = textDecoder.decode(valueDataView.buffer);
+            log(`  ${labelOfDataSource} Data: ` + key +
+                '\n    (Hex) ' + hexString +
+                '\n    (ASCII) ' + asciiString);
+        };
     </script>
 
 
