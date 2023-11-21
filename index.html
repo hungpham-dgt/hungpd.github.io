@@ -4,68 +4,12 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
 
     <title>Web Bluetooth / Device Info Sample</title>
     <script>
-        window.addEventListener('error', function (error) {
-            if (ChromeSamples && ChromeSamples.setStatus) {
-                console.error(error);
-                ChromeSamples.setStatus(error.message + ' (Your browser may not support this feature.)');
-                error.preventDefault();
-            }
-        });
-    </script>
 
-</head>
-
-<body>
-    <script>
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('service-worker.js');
-        }
-    </script>
-
-    <form>
-        <button>Daisenko Connect!</button>
-    </form>
-
-    <script>
-        var ChromeSamples = {
-            log: function () {
-                var line = Array.prototype.slice.call(arguments).map(function (argument) {
-                    return typeof argument === 'string' ? argument : JSON.stringify(argument);
-                }).join(' ');
-
-                document.querySelector('#log').textContent += line + '\n';
-            },
-
-            clearLog: function () {
-                document.querySelector('#log').textContent = '';
-            },
-
-            setStatus: function (status) {
-                document.querySelector('#status').textContent = status;
-            },
-
-            setContent: function (newContent) {
-                var content = document.querySelector('#content');
-                while (content.hasChildNodes()) {
-                    content.removeChild(content.lastChild);
-                }
-                content.appendChild(newContent);
-            }
-        };
-    </script>
-
-    <h3>Live Output</h3>
-    <div id="output" class="output">
-        <div id="content"></div>
-        <div id="status"></div>
-        <pre id="log"></pre>
-    </div>
-
-    <script>
         if (/Chrome\/(\d+\.\d+.\d+.\d+)/.test(navigator.userAgent)) {
             // Let's log a warning if the sample is not supposed to execute on this
             // version of Chrome.
@@ -73,108 +17,82 @@
                 ChromeSamples.setStatus('Warning! Keep in mind this sample has been tested with Chrome ' + 45 + '.');
             }
         }
-    </script>
 
+        function isWebBluetoothEnabled() {
+            if (navigator.bluetooth) {
+                return true;
+            } else {
+                console.error('Web Bluetooth API is not available.\n' +
+                    'Please make sure the "Experimental Web Platform features" flag is enabled.');
+                return false;
+            }
+        }
+
+        // Check BLE is enabled
+        isWebBluetoothEnabled();
+
+        var ChromeSamples = {
+            log: function () {
+                var line = Array.prototype.slice.call(arguments).map(function (argument) {
+                    return typeof argument === 'string' ? argument : JSON.stringify(argument);
+                }).join(' ');
+
+                document.querySelector('#log').textContent += line + '\n';
+                console.log(line);
+            },
+        }
+        log = ChromeSamples.log;
+    </script>
+</head>
+
+<body>
+    <div class="container mx-auto mt-16 w-96 border p-8 flex flex-col gap-2">
+        <button class="bg-rose-600 text-white px-3 py-1" id="connect">Daisenko Connect!</button>
+        <pre class="w-full h-48 border overflow-scroll text-xs p-2" id="log"></pre>
+    </div>
 
     <script>
-        // function onButtonClick() {
-        //     let filters = [];
-
-        //     let filterService = document.querySelector('#service').value;
-        //     if (filterService.startsWith('0x')) {
-        //         filterService = parseInt(filterService);
-        //     }
-        //     if (filterService) {
-        //         filters.push({ services: [filterService] });
-        //     }
-
-        //     let filterName = document.querySelector('#name').value;
-        //     if (filterName) {
-        //         filters.push({ name: filterName });
-        //     }
-
-        //     let filterNamePrefix = document.querySelector('#namePrefix').value;
-        //     if (filterNamePrefix) {
-        //         filters.push({ namePrefix: filterNamePrefix });
-        //     }
-
-        //     let options = {};
-        //     options.filters = filters;
-
-        //     log('Requesting Bluetooth Device...');
-        //     log('with ' + JSON.stringify(options));
-        //     navigator.bluetooth.requestDevice(options)
-        //         .then(device => {
-        //             log('> Name:             ' + device.name);
-        //             log('> Id:               ' + device.id);
-        //             log('> Connected:        ' + device.gatt.connected);
-
-        //             // Watch Advertisements
-        //             device.addEventListener('advertisementreceived', (event) => {
-        //                 log('Advertisement received.');
-        //                 log('  Device Name: ' + event.device.name);
-        //                 log('  Device ID: ' + event.device.id);
-        //                 log('  RSSI: ' + event.rssi);
-        //                 log('  TX Power: ' + event.txPower);
-        //                 log('  UUIDs: ' + event.uuids);
-        //                 event.manufacturerData.forEach((valueDataView, key) => {
-        //                     logDataView('Manufacturer', key, valueDataView);
-        //                 });
-        //                 event.serviceData.forEach((valueDataView, key) => {
-        //                     logDataView('Service', key, valueDataView);
-        //                 });
-        //             });
-
-        //             // Attempts to connect to remote GATT Server.
-        //             device.gatt.connect();
-        //             return device.watchAdvertisements();
-        //         })
-        //         .catch(error => {
-        //             log('Argh! ' + error);
-        //         });
-        // }
-
-
-        /*
-        Service:
-            0000fff0-0000-1000-8000-00805f9b34fb
-            00001800-0000-1000-8000-00805f9b34fb (*)
-
-        Characterisic:
-            0000ae11-0000-1000-8000-00805f9b34fb
-            00002a00-0000-1000-8000-00805f9b34fb
-        */
-
-        function onButtonClick() {
-            const controlServiceUUID = '00001800-0000-1000-8000-00805f9b34fb'; // Primary service
-            const commandCharacteristicUUID = '00002a00-0000-1000-8000-00805f9b34fb'; // Characteristic / Notify
+        document.querySelector('#connect').addEventListener('click', function (event) {
+            const controlServiceUUID = '0000fff0-0000-1000-8000-00805f9b34fb'; // Primary service
+            const commandCharacteristicUUID = '0000ae11-0000-1000-8000-00805f9b34fb'; // Characteristic / Notify
 
             let options = {
+                // acceptAllDevices: true,
+                // optionalServices: [controlServiceUUID],
                 filters: [
                     { namePrefix: 'Daisenko' },
-                    //{ services: [controlServiceUUID] }
+                    { services: [controlServiceUUID] }
                 ],
             };
 
-            log('Requesting Bluetooth Device...');
-            log('with ' + JSON.stringify(options));
-
             navigator.bluetooth.requestDevice(options)
+
                 .then(device => {
-                    log("> Got device name: ", device.name);
-                    log("> id: ", device.id);
+                    console.log("Found device", device);
+                    log("Found device");
                     return device.gatt.connect();
                 })
 
                 .then(server => {
-                    // Step 3: Get the Service
-                    serverInstance = server;
-                    log("> Getting PrimaryService");
+                    console.log("Connected!", server)
+                    log("Connected to device");
+
+                    // return server.getPrimaryServices();
+                    // })
+                    // .then(services => {
+
+                    //     console.log('BLE Services', services);
+
+                    //     services.forEach(service => {
+                    //         const characteristics = service.getCharacteristics();
+                    //         console.log('BLE Chars', characteristics);
+                    //     });
+
                     return server.getPrimaryService(controlServiceUUID);
                 })
 
                 .then(service => {
-                    log("> Getting Characteristic");
+                    log("Getting Characteristic");
                     return service.getCharacteristic(commandCharacteristicUUID);
                 })
 
@@ -185,20 +103,15 @@
                     // characteristic.addEventListener('characteristicvaluechanged', test);
 
                     return myCharacteristic.startNotifications().then(_ => {
-                        log('> Notifications started');
+                        log('Notifications started');
                         myCharacteristic.addEventListener('characteristicvaluechanged', handleNotifications);
                     });
                 })
 
                 .catch(function (error) {
-                    console.log("Something went wrong. " + error);
+                    console.error("Something went wrong. " + error);
                 });
-        }
-
-        function test(event) {
-            let commandValue = event.target.value.getUint8(0);
-            log("> Received: " + commandValue);
-        }
+        });
 
         function handleNotifications(event) {
             let value = event.target.value;
@@ -206,44 +119,13 @@
             // Convert raw data bytes to hex values just for the sake of showing something.
             // In the "real" world, you'd use data.getUint8, data.getUint16 or even
             // TextDecoder to process raw data bytes.
-            for (let i = 0; i < value.byteLength; i++) {
-                a.push('0x' + ('00' + value.getUint8(i).toString(16)).slice(-2));
-            }
-            log('> ' + a.join(' '));
+            // for (let i = 0; i < value.byteLength; i++) {
+            //     a.push('0x' + ('00' + value.getUint8(i).toString(16)).slice(-2));
+            // }
+            // // console.log(new TextDecoder().decode(value));
+            // console.log(value, '> ' + a.join(' '));
+            log("> Press btn: " + value.getUint8(0).toString(16))
         }
-
-        document.querySelector('form').addEventListener('submit', function (event) {
-            event.stopPropagation();
-            event.preventDefault();
-
-            if (isWebBluetoothEnabled()) {
-                ChromeSamples.clearLog();
-                onButtonClick();
-            }
-        });
-
-        log = ChromeSamples.log;
-
-        function isWebBluetoothEnabled() {
-            if (navigator.bluetooth) {
-                return true;
-            } else {
-                ChromeSamples.setStatus('Web Bluetooth API is not available.\n' +
-                    'Please make sure the "Experimental Web Platform features" flag is enabled.');
-                return false;
-            }
-        }
-
-        const logDataView = (labelOfDataSource, key, valueDataView) => {
-            const hexString = [...new Uint8Array(valueDataView.buffer)].map(b => {
-                return b.toString(16).padStart(2, '0');
-            }).join(' ');
-            const textDecoder = new TextDecoder('ascii');
-            const asciiString = textDecoder.decode(valueDataView.buffer);
-            log(`  ${labelOfDataSource} Data: ` + key +
-                '\n    (Hex) ' + hexString +
-                '\n    (ASCII) ' + asciiString);
-        };
     </script>
 
 </body>
